@@ -2,7 +2,9 @@
 Windows Update Utility (WUU) Fixed
 This was an update of the PoshPIAG project updated by Tyler Siegrist and Fixed by Phaere in the comment. I just put it all together here for others to take over.
 
-To make this work make sure you download PSExec and put it in the WUU2 folder
+To make this work make sure you download PSExec and put it in the WUU2 folder.
+
+https://docs.microsoft.com/en-us/sysinternals/downloads/psexec
 
 Original Project.
 
