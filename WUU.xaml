@@ -1,0 +1,150 @@
+<Window
+    xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation'
+    xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml'
+    x:Name='Window' Title='PowerShell Windows Update Utility' WindowStartupLocation = 'CenterScreen' 
+    Width = '1050' Height = '600' ShowInTaskbar = 'True'>
+    <Window.Resources>
+        <DataTemplate x:Key="HeaderTemplate">
+            <DockPanel>
+                <TextBlock FontSize="10" Foreground="Black" FontWeight="Bold" >
+                    <TextBlock.Text>
+                        <Binding/>
+                    </TextBlock.Text>
+                </TextBlock>
+            </DockPanel>
+        </DataTemplate>
+    </Window.Resources>
+    <Grid x:Name = 'Grid' ShowGridLines = 'false'>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height = 'Auto'/>
+            <RowDefinition Height = 'Auto'/>
+            <RowDefinition Height = '*'/>
+            <RowDefinition Height = 'Auto'/>
+            <RowDefinition Height = 'Auto'/>
+            <RowDefinition Height = 'Auto'/>
+        </Grid.RowDefinitions>
+        <Menu Width = 'Auto' HorizontalAlignment = 'Stretch' Grid.Row = '0' Background="White">
+            <MenuItem x:Name = 'FileMenu' Header = '_File'>
+                <MenuItem x:Name = 'AddComputerMenu' Header = 'Add Computers' ToolTip = 'Add computers by name'> </MenuItem>
+				<MenuItem x:Name = 'AddADMenu' Header = 'Add Computers From AD' ToolTip = 'Add computers by selecting an OU from Active Directory'> </MenuItem>
+				<MenuItem x:Name = 'BrowseFileMenu' Header = 'Add Computers From File' ToolTip = 'Add computers from txt or csv file' InputGestureText ='Ctrl+O'> </MenuItem>
+				<MenuItem x:Name = 'ExportListMenu' Header = 'Export Computer List' ToolTip = 'Creates a list of all computers and saves to a text file.' InputGestureText ='Ctrl+S'/>
+                <Separator />
+                <MenuItem x:Name = 'ExitMenu' Header = 'Exit' ToolTip = 'Exits the utility.'/>
+            </MenuItem>
+            <MenuItem x:Name = 'EditMenu' Header = '_Edit'>
+                <MenuItem x:Name = 'SelectAllMenu' Header = 'Select _All' ToolTip = 'Selects all rows.' InputGestureText ='Ctrl+A'/>
+            </MenuItem>
+            <MenuItem x:Name = 'ActionMenu' Header = '_Action'>
+				<MenuItem x:Name = 'ClearComputerListMenu' Header = 'Clear Computer List' ToolTip = 'Clears the computer list.'/>
+				<MenuItem x:Name = 'OfflineHostsMenu' Header = 'Remove Offline Computers' ToolTip = 'Removes all offline hosts from Computer List'/>
+				<Separator />
+                <MenuItem x:Name = 'ViewErrorMenu' Header = 'View ErrorLog' ToolTip = 'Opens error log.' IsEnabled="false"/>
+            </MenuItem>
+        </Menu>
+        <Grid Grid.Row = '2' Grid.Column = '0' ShowGridLines = 'false'>
+            <Grid.Resources>
+				<!--<Style TargetType="{x:Type ListViewItem}">
+					<Style.Triggers>
+						<Trigger Property="IsSelected" Value="True" >
+							<Setter Property="Foreground" Value="White" />
+							<Setter Property="Background" Value="LightBlue" />
+						</Trigger>	
+					</Style.Triggers>
+				</Style>-->			
+                <Style x:Key="AlternatingRowStyle" TargetType="{x:Type Control}">
+				  <Style.Triggers>
+					  <DataTrigger Binding="{Binding UpdatesStatus}"
+								  Value="All updates installed">
+						<Setter Property="Background"
+							  Value="LightGreen" />
+					  </DataTrigger>
+					  <DataTrigger Binding="{Binding UpdatesStatus}"
+								  Value="Updates required">
+						<Setter Property="Background"
+							  Value="LightPink" />
+					  </DataTrigger>
+					  <DataTrigger Binding="{Binding UpdatesStatus}"
+								  Value="Unknown">
+						<Setter Property="Background"
+							  Value="White" />
+					  </DataTrigger>
+					  <DataTrigger Binding="{Binding UpdatesStatus}"
+								  Value="Reboot required">
+						<Setter Property="Background"
+							  Value="Orange" />
+					  </DataTrigger>					  					  
+				  </Style.Triggers>				
+                </Style>				
+            </Grid.Resources>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="Auto"/>
+                <!--<ColumnDefinition Width="10"/>-->
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height = 'Auto'/>
+                <RowDefinition Height = 'Auto'/>
+                <RowDefinition Height = '*'/>
+                <RowDefinition Height = '*'/>
+                <RowDefinition Height = 'Auto'/>
+                <!--<RowDefinition Height = 'Auto'/>-->
+                <RowDefinition Height = 'Auto'/>
+            </Grid.RowDefinitions>
+			<CheckBox x:Name='AutoRebootCheckBox'>Auto Reboot</CheckBox>
+            <GroupBox Header = "Computer List" Grid.Column = '0' Grid.Row = '2' Grid.ColumnSpan = '11' Grid.RowSpan = '3'>
+                <Grid Width = 'Auto' Height = 'Auto' ShowGridLines = 'false'>
+                <ListView x:Name = 'Listview' AllowDrop = 'True' AlternationCount="2" ItemContainerStyle="{StaticResource AlternatingRowStyle}">
+                    <ListView.View>
+                        <GridView x:Name = 'GridView' AllowsColumnReorder = 'True' ColumnHeaderTemplate="{StaticResource HeaderTemplate}">
+                            <GridViewColumn x:Name = 'ComputerColumn' Width = '100' DisplayMemberBinding = '{Binding Path = Computer}' Header='Computer'/>
+                            <GridViewColumn x:Name = 'AvailableColumn' Width = '100' DisplayMemberBinding = '{Binding Path = Available}' Header='Available'/>
+                            <GridViewColumn x:Name = 'DownloadedColumn' Width = '100' DisplayMemberBinding = '{Binding Path = Downloaded}' Header='Downloaded' />
+							<GridViewColumn x:Name = 'InstallErrorsColumn' Width = '100' DisplayMemberBinding = '{Binding Path = InstallErrors}' Header='Install Errors' />
+                            <GridViewColumn x:Name = 'StatusColumn' Width = '365' DisplayMemberBinding = '{Binding Path = Status}' Header='Status'/>
+							<GridViewColumn x:Name = 'RebootColumn' Width = '100' DisplayMemberBinding = '{Binding Path = RebootRequired}' Header='Reboot Required'/>
+							<GridViewColumn x:Name = 'UpdatesStatusColumn' Width = '150' DisplayMemberBinding = '{Binding Path = UpdatesStatus}' Header='Updates Status'/>
+                        </GridView>
+                    </ListView.View>
+                    <ListView.ContextMenu>
+                        <ContextMenu x:Name = 'ListViewContextMenu'>
+                            <MenuItem x:Name = 'AddComputerContext' Header = 'Add Computers'/>
+                            <MenuItem x:Name = 'AddADContext' Header = 'Add Computers From AD'/>
+							<MenuItem x:Name = 'AddFileContext' Header = 'Add Computers From File' InputGestureText ='Ctrl+O'/>
+                            <MenuItem x:Name = 'RemoveComputerContext' Header = 'Remove Computer' InputGestureText ='Del'/>
+                            <Separator />
+							<MenuItem x:Name = 'RemoteDesktopContext' Header = 'Remote Desktop'/>
+							<MenuItem x:Name = 'CheckUpdatesContext' Header = 'Check For Updates'/>
+							<MenuItem x:Name = 'DownloadUpdatesContext' Header = 'Download Updates'/>
+							<MenuItem x:Name = 'InstallUpdatesContext' Header = 'Install Updates'/>
+							<MenuItem x:Name = 'RestartContext' Header = 'Restart Computer'/>
+							<Separator />
+							<MenuItem x:Name = 'ShowUpdatesContext' Header = 'Show Available Updates'/>
+							<MenuItem x:Name = 'ShowInstalledContext' Header = 'Show Installed Updates'/>
+							<MenuItem x:Name = 'UpdateHistoryMenu' Header = 'Show Update History'/>
+							<MenuItem x:Name = 'ViewUpdateLogContext' Header = 'View Windows Update Log'/>
+                            <MenuItem x:Name = 'WindowsUpdateServiceMenu' Header = 'Windows Update Service' >
+                                <MenuItem x:Name = 'WUStopServiceMenu' Header = 'Stop Service' />
+                                <MenuItem x:Name = 'WUStartServiceMenu' Header = 'Start Service' />
+                                <MenuItem x:Name = 'WURestartServiceMenu' Header = 'Restart Service' />
+                            </MenuItem>
+                        </ContextMenu>
+                    </ListView.ContextMenu>
+                </ListView>
+                </Grid>
+            </GroupBox>
+        </Grid>
+        <TextBox x:Name = 'StatusTextBox' Grid.Row = '4' ToolTip = 'Displays current status of operation'> Waiting for Action... </TextBox>
+    </Grid>
+</Window>
